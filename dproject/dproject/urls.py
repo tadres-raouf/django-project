@@ -26,6 +26,10 @@ urlpatterns = [
     path('api/accounts/', include('accounts.api.urls')),
     path('api/projects/', include('projects.api.urls')),
     path('api/tags/', include('tags.api.urls')),
+    path('api/reports/', include('reports.api.urls')),
+    path('api/ratings/', include('ratings.api.urls')),
+    path('api/media/', include('media.api.urls')),
+
 
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
