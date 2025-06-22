@@ -15,3 +15,29 @@ class DonationSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("Donation amount must be greater than zero.")
         return value
+
+    def validate(self, data):
+        request = self.context.get('request')
+        user = request.user if request else None
+        project = data.get('project')
+        amount = data.get('amount')
+
+        if project and user:
+            # Prevent donating to your own project
+            if project.user == user:
+                raise serializers.ValidationError("You cannot donate to your own project.")
+
+            # Prevent donation beyond the project's target
+            remaining_amount = project.total_target - project.current_amount
+            if amount > remaining_amount:
+                raise serializers.ValidationError(
+                    f"Donation exceeds remaining target. You can donate up to {remaining_amount} EGP."
+                )
+
+        return data
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['user'] = request.user
+        return super().create(validated_data)
